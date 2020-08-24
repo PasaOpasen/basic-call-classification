@@ -10,34 +10,47 @@ sys.path.append(os.path.dirname(__file__))
 
 from Ngrams import txt_list_to_grams
 
-from stemmer_rus import Get_dictionary_values, Stem_text, get_soft_skills2
+from stemmer_rus import Get_dictionary_values, Stem_text, get_prop_set, grams_to_set
 
 from prepare_functions import *
 
+dirname = os.path.dirname(__file__)
 
+def TruePath(path):
+    return os.path.join(dirname, path)
 
-def get_content_from_text(lines_of_text, vocab = None):
+def has_feature(grams, vocab):
+    gr = [Stem_text(gram) for gram in grams]
+    return any(v in grams_to_set(gr) for v in vocab)
+
+def get_position_line(lines, index):
+    if index != None:
+       line, who = lines[index]
+       return f'{who}) {line}'
+        
+    return None
+
+def get_answer(sample, first_vocab = get_prop_set(TruePath('model_data/objections_used.txt')), second_vocab = get_prop_set(TruePath('./model_data/objections_back_used.txt'))):
     
-    grams = txt_list_to_grams(lines_of_text,0)
-    #print(grams)
+    ngrams, lines  = txt_list_to_grams(sample, 0)
     
-    h = []
+    first_flag, first_ind, second_flag, second_ind = False, None, None, None
     
-    s = []
+    for i in range(len(lines)):
+        g, number = ngrams[i]
+        if number == 2 and has_feature(g, first_vocab):
+            first_flag, first_ind, second_flag, second_ind = True, i, False, None
+            
+            for j in range(i+1, len(lines)):
+                h, nb = ngrams[j]
+                if nb == 1 and has_feature(h, second_vocab):
+                    second_flag, second_ind = True, j
+                    
+                    break
+            break
+
     
-    for g in grams:
-        if has_more_than_x_russian_symbols(g,2):
-            s.append(g)
-        else:
-            h.append(g)
-    #print(s);print(h)
-    if vocab == None:
-        soft_skills = get_soft_skills2(s, h)
-    else:
-        soft_skills = get_soft_skills2(s, h, vocab)
-    
-    
-    return soft_skills
+    return first_flag, get_position_line(lines, first_ind), second_flag, get_position_line(lines, second_ind)
 
 
 
@@ -47,7 +60,9 @@ if __name__=='__main__':
     with io.open("0.txt",'r', encoding = 'utf-8') as f:
         doclines = f.readlines()
         
-    answer = get_content_from_text(doclines)
+    answer = get_answer(doclines[2],
+                        get_prop_set('./model_data/objections_used.txt'),
+                        get_prop_set('./model_data/objections_back_used.txt'))
     print(answer)
     
     

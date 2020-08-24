@@ -29,57 +29,22 @@ def get_stem_dictionary(filename = 'graph_skills.json'):
     #print(r)
     return r
 
-dictionary = get_stem_dictionary()
+def grams_to_set(grams_sets):
+    k = [' '.join(g) for g in grams_sets]
+    return set(k)
+    
 
-def get_soft_skills(grams):
+def get_prop_set(filename = './model_data/objections_used.txt'):
+    with io.open( filename,'r', encoding = 'utf-8') as f:
+        sp = [Stem_text(line) for line in f]
+        s = grams_to_set(sp) #set()
+        #for line in f:
+        #    s = s.union(Stem_text(line))
+        return s
     
-    full = set()
-    for g in grams:
-        full=full.union(Stem_text(g))
-    
-    voc = dictionary
-    
-    result = []
-    for key, value in voc.items():
-        if set(key.split()).issubset(full):
-            if type(value) == list:
-                result+=value
-            else:
-                result.append(value)
-    return list(set(result))
 
-def get_soft_skills2(s_grams, h_grams, vocab = dictionary):
-    """
-    работает как get_soft_skills(s_grams + h_grams),
-    но удаляет лишнее из h_grams
-    """
-    
-    full = set()
-    for g in s_grams + h_grams:
-        full=full.union(Stem_text(g))
-    #print(full)
-    voc = vocab
-    
-    result = []
-    result_set = set()
-    for key, value in voc.items():
-        st = set(key.split())
-        if st.issubset(full):
-            result_set = result_set.union(st)
-            if type(value) == list:
-                result+=value
-            else:
-                result.append(value)
-          
-    inds = []
-    for i in range(len(h_grams)):
-        if Stem_text(h_grams[i]).issubset(result_set):
-            inds.append(i)
-    
-    for i in inds[::-1]:
-        del h_grams[i]
-    
-    return list(set(result))
+#dictionary = get_stem_dictionary()
+
 
 
 def update_dictionary():

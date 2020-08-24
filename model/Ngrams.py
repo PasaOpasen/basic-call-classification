@@ -75,71 +75,42 @@ def txt_list_to_grams(sample, debug = 1, out_file = CorrectPath('report.txt')):
     
     
     
-    # 3) detect sentences
-    # remove stopwords
-    sentences = []
+    # 3) remove stopwords
     
-    for obj in commas:
-        #sentences += [str(sent) for sent in tb.TextBlob(obj).sentences] 
-        for sentence in get_sentences(obj): # split by .  
-            #print(sentence)
-            sentences +=  split_by_words2(sentence, splitter) # split by stopwords #get_sentences(obj)
+    dats = [(split_by_words2(line.lower(), splitter), number) for line, number in lines]
     
     if debug:
         print(beg+'SPLIT BY SENTENCES AND STOP WORDS')
-        print_list(sentences)
+        print_list(dats)
     
    
-
-    
     # split by n-grams
     
-    ngrams = list( 
-        set().union(*[ 
-            #[' '.join(list(g)) for g in tb.TextBlob(txt).ngrams(2)] 
-            [' '.join(list(g)) for g in get_ngrams(txt.split(), 2)] 
-            for txt in sentences]).union(*[ 
-            [' '.join(list(g)) for g in get_ngrams(txt.split(), 1)] for txt in sentences])
-        )
-    
+    ngrams = []
+    for sentences, number in dats:
+        grams = list( 
+            set().union(*[ 
+                [' '.join(list(g)) for g in get_ngrams(txt.split(), 3)] for txt in sentences]).union(*[ 
+                [' '.join(list(g)) for g in get_ngrams(txt.split(), 2)]
+                    for txt in sentences]).union(*[ 
+                [' '.join(list(g)) for g in get_ngrams(txt.split(), 1)] for txt in sentences])
+            )
+        grams = [g for g in grams if len(g)>0 and any((s.isalpha() for s in g))]                 
+                            
+        ngrams.append((grams, number))
+        
     if debug:
         ngrams = list(ngrams)
-        print(beg+'GET 1/2 NGRAMS')
+        print(beg+'GET 1/2/3 NGRAMS')
         print_list(ngrams)
-    
-    
-    # delete ngrams without alpha
-    
-    ngrams = [g for g in ngrams if len(g)>0 and any((s.isalpha() for s in g))]
-    
-    if debug:
-        print(beg+'DELETE NGRAMS WITHOUT ALPHA')
-        print_list(ngrams)
-    
-    
-    # delete bad symbols in beginning
-    symbs = [s for s in set().union(*ngrams) if not s.isalnum()]
-    
-    try: # for .NET
-        symbs.remove('.')
-    except:
-        pass
-    
-    ngrams = [g.lstrip(''.join(symbs)) for g in ngrams]
-    
-    if debug:
-        print(beg+'DELETE SYMBOLS LIKE + # ) FROM LEFT PART OF WORDS')
-        print_list(ngrams)
-       
-    ngrams = list(set(ngrams))
-    
+      
     
     if debug:
         print(beg+'RESULTS')
         print_list(ngrams)
         file.close()
     
-    return ngrams
+    return ngrams, lines
     
     
 
@@ -151,7 +122,7 @@ if __name__=='__main__':
         doclines = f.readlines()
     
     original_stdout = sys.stdout
-    g = txt_list_to_grams(doclines,1)
+    g = txt_list_to_grams(doclines[2],1)
     
         
     sys.stdout = original_stdout
