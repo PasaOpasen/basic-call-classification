@@ -48,7 +48,9 @@ def get_answer(sample, first_vocab = get_prop_set(TruePath('model_data/objection
                     
                     break
             break
-
+    
+    if second_flag == False and len(lines)-first_ind > 8:
+        second_flag = '50/50'
     
     return first_flag, get_position_line(lines, first_ind), second_flag, get_position_line(lines, second_ind)
 
@@ -60,7 +62,7 @@ if __name__=='__main__':
     with io.open("0.txt",'r', encoding = 'utf-8') as f:
         doclines = f.readlines()
         
-    answer = get_answer(doclines[2],
+    answer = get_answer(doclines[0],
                         get_prop_set('./model_data/objections_used.txt'),
                         get_prop_set('./model_data/objections_back_used.txt'))
     print(answer)

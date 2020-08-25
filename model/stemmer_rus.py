@@ -36,7 +36,7 @@ def grams_to_set(grams_sets):
 
 def get_prop_set(filename = './model_data/objections_used.txt'):
     with io.open( filename,'r', encoding = 'utf-8') as f:
-        sp = [Stem_text(line) for line in f]
+        sp = [Stem_text(line) for line in f if len(line)>1]
         s = grams_to_set(sp) #set()
         #for line in f:
         #    s = s.union(Stem_text(line))
