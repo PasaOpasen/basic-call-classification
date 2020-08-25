@@ -9,6 +9,7 @@ import sys, os, io
 sys.path.append(os.path.dirname('../'))
 
 from detector import get_answer
+from prepare_functions import split_by_speakers
 from stemmer_rus import Get_dictionary_values, Stem_text, get_prop_set, grams_to_set
 import numpy as np
 
@@ -48,7 +49,7 @@ def update_graph():
 
 
 
-with io.open("0.txt",'r', encoding = 'utf-8') as f:
+with io.open("train.txt",'r', encoding = 'utf-8') as f:
     lines = f.readlines()
     
 
@@ -62,11 +63,13 @@ update_graph()
 while i < inds.size:
     indx = inds[i]
     l1 = lines[indx]
-
+    sp = [f'{n}) {text}' for text, n in split_by_speakers(l1)]
     res = get_answer(l1, voc1, voc2)
 
-    
-    print(colored(f'key = {l1}', on_color = 'on_blue'))
+    print(colored(f'number = {indx}', on_color = 'on_magenta'))
+    #print(colored(f'key = {l1}', on_color = 'on_blue'))
+    for line in sp:
+        print(colored(line, on_color = 'on_blue'))
     print(colored(f'skills = {res}', on_color = 'on_green'))
     print()
     

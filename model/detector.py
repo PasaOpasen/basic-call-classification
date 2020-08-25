@@ -49,7 +49,7 @@ def get_answer(sample, first_vocab = get_prop_set(TruePath('model_data/objection
                     break
             break
     
-    if second_flag == False and len(lines)-first_ind > 8:
+    if second_flag == False and sum([num == 1 for line, num in lines[first_ind:]] ) > 8:
         second_flag = '50/50'
     
     return first_flag, get_position_line(lines, first_ind), second_flag, get_position_line(lines, second_ind)
