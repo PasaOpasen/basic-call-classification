@@ -52,3 +52,20 @@ copyfile('objections_back_start.txt', op.join(model_data_path,'objections_back_u
 
 
 
+
+
+
+
+
+
+
+data = pd.read_excel('test_data.xlsx', header = None)
+
+with open('test.txt','w', encoding = 'utf8') as file:
+    
+    lines = [r.replace('\n',' ') +'\n' for r in data.iloc[:,3]]
+    
+    file.writelines(lines)
+
+
+
